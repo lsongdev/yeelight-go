@@ -2,16 +2,20 @@ package main
 
 import (
 	"log"
+	"time"
 
-	"github.com/song940/yeelight-go/yeelight"
+	"github.com/lsongdev/yeelight-go/yeelight"
 )
 
 func main() {
-	// y := yeelight.Find()
-	y := yeelight.New(&yeelight.Config{
-		IP:   "192.168.2.182",
-		Port: 55443,
-	})
+	y, err := yeelight.Find()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// y := yeelight.New(&yeelight.Config{
+	// 	IP:   "192.168.2.182",
+	// 	Port: 55443,
+	// })
 
 	result, err := y.GetProp("name")
 	if err != nil {
@@ -31,13 +35,36 @@ func main() {
 	result, err = y.SetPower("on", &yeelight.Effect{Effect: "smooth", Duration: 1500}, 2)
 	log.Println(result, err)
 
+	result, err = y.SetBright(100, &yeelight.Effect{Effect: "smooth", Duration: 1500})
+	log.Println(result, err)
+
 	result, err = y.SetRGB(
-		255,
+		0xff0000,
 		&yeelight.Effect{Effect: "smooth", Duration: 1500},
 	)
 	log.Println(result, err)
+	time.Sleep(2 * time.Second)
 
-	result, err = y.SetBright(10, &yeelight.Effect{Effect: "smooth", Duration: 1500})
+	result, err = y.SetRGB(
+		0x00ff00,
+		&yeelight.Effect{Effect: "smooth", Duration: 1500},
+	)
+	log.Println(result, err)
+	time.Sleep(2 * time.Second)
+
+	result, err = y.SetRGB(
+		0x0000ff,
+		&yeelight.Effect{Effect: "smooth", Duration: 1500},
+	)
+	log.Println(result, err)
+	time.Sleep(2 * time.Second)
+
+	result, err = y.SetRGB(
+		0xfffff,
+		&yeelight.Effect{Effect: "smooth", Duration: 1500},
+	)
+	log.Println(result, err)
+	result, err = y.SetBright(3, &yeelight.Effect{Effect: "smooth", Duration: 1500})
 	log.Println(result, err)
 
 	result, err = y.GetProp("bright")
@@ -45,7 +72,7 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println("bright:", result.Result[0])
-
-	// result, err = y.Toggle()
-	// log.Println(result, err)
+	time.Sleep(3 * time.Second)
+	result, err = y.Toggle()
+	log.Println(result, err)
 }

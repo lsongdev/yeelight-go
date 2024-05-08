@@ -1,5 +1,5 @@
-module github.com/song940/yeelight-go
+module github.com/lsongdev/yeelight-go
 
 go 1.21.4
 
-require github.com/song940/ssdp-go v0.0.0-20240218083632-d30ffe305090 // indirect
+require github.com/lsongdev/ssdp-go v0.0.0-20250507123147-bdfa10d21c6e // indirect

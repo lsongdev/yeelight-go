@@ -1,2 +1,4 @@
-github.com/song940/ssdp-go v0.0.0-20240218083632-d30ffe305090 h1:rGJwRVd6Ybe4PDsiAiQ7Ea8MzueeBrvS0Mki6sDHcjM=
-github.com/song940/ssdp-go v0.0.0-20240218083632-d30ffe305090/go.mod h1:Yqt1wGwVFJPCRuejtO+Sy0awVCoF4Mc31WpKbfw5iLU=
+github.com/lsongdev/ssdp-go v0.0.0-20240218083632-d30ffe305090 h1:rGJwRVd6Ybe4PDsiAiQ7Ea8MzueeBrvS0Mki6sDHcjM=
+github.com/lsongdev/ssdp-go v0.0.0-20240218083632-d30ffe305090/go.mod h1:Yqt1wGwVFJPCRuejtO+Sy0awVCoF4Mc31WpKbfw5iLU=
+github.com/lsongdev/ssdp-go v0.0.0-20250507123147-bdfa10d21c6e h1:dXiM1lc77E9N/+B4R32hb8EA2A6n0lUCtfSOB0d8+Ug=
+github.com/lsongdev/ssdp-go v0.0.0-20250507123147-bdfa10d21c6e/go.mod h1:fFWoxWjuae01yKqY1bVJBlwMsPBqEhOdYUkQl2OP5YA=

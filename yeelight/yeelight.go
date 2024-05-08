@@ -7,19 +7,21 @@ import (
 	"log"
 	"math/rand"
 	"net"
+	"net/url"
+	"strconv"
 	"time"
 
-	"github.com/song940/ssdp-go/ssdp"
+	"github.com/lsongdev/ssdp-go/ssdp"
 )
 
 type Config struct {
-	IP      string
+	Host    string
 	Port    int
 	Timeout time.Duration
 }
 
 func (c *Config) Address() string {
-	return fmt.Sprintf("%s:%d", c.IP, c.Port)
+	return fmt.Sprintf("%s:%d", c.Host, c.Port)
 }
 
 type Yeelight struct {
@@ -72,6 +74,7 @@ const (
 	Night  PowerMode = 5
 )
 
+// discover all devices
 func Discover() (lights []*Yeelight, err error) {
 	discovery := ssdp.NewClient(&ssdp.Config{
 		Port: 1982,
@@ -81,19 +84,27 @@ func Discover() (lights []*Yeelight, err error) {
 		return
 	}
 	for _, response := range responses {
-		log.Println(response.Location)
-		y := &Yeelight{}
+		u, err := url.Parse(response.Location)
+		if err != nil {
+			continue
+		}
+		p, _ := strconv.Atoi(u.Port())
+		y := New(&Config{
+			Host: u.Hostname(),
+			Port: p,
+		})
 		lights = append(lights, y)
 	}
 	return
 }
 
-func Find() *Yeelight {
+// find one device
+func Find() (*Yeelight, error) {
 	lights, err := Discover()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return lights[0]
+	return lights[0], nil
 }
 
 func New(config *Config) *Yeelight {
