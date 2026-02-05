@@ -8,89 +8,54 @@
 go get github.com/lsongdev/yeelight-go
 ```
 
-## Example
+## CLI Usage
 
-```go
-package main
+You can install a command-line interface for controlling Yeelight bulbs:
 
-import (
-  "log"
-  "time"
-
-  "github.com/lsongdev/yeelight-go/yeelight"
-)
-
-func main() {
-  y, err := yeelight.Find()
-  if err != nil {
-  	log.Fatal(err)
-  }
-  // or ...
-  // y := yeelight.New(&yeelight.Config{
-  //   IP:   "192.168.2.182",
-  //   Port: 55443,
-  // })
-
-  result, err := y.GetProp("name")
-  if err != nil {
-    log.Fatal(err)
-  }
-  log.Println("name:", result.Result[0])
-
-  result, _ = y.SetName("Yeelight")
-  log.Println(result)
-
-  result, err = y.GetProp("power")
-  if err != nil {
-    log.Fatal(err)
-  }
-  log.Println(result.Result[0])
-
-  result, err = y.SetPower("on", &yeelight.Effect{Effect: "smooth", Duration: 1500}, 2)
-  log.Println(result, err)
-
-  result, err = y.SetBright(100, &yeelight.Effect{Effect: "smooth", Duration: 1500})
-  log.Println(result, err)
-
-  result, err = y.SetRGB(
-    0xff0000,
-    &yeelight.Effect{Effect: "smooth", Duration: 1500},
-  )
-  log.Println(result, err)
-  time.Sleep(2 * time.Second)
-
-  result, err = y.SetRGB(
-    0x00ff00,
-    &yeelight.Effect{Effect: "smooth", Duration: 1500},
-  )
-  log.Println(result, err)
-  time.Sleep(2 * time.Second)
-
-  result, err = y.SetRGB(
-    0x0000ff,
-    &yeelight.Effect{Effect: "smooth", Duration: 1500},
-  )
-  log.Println(result, err)
-  time.Sleep(2 * time.Second)
-
-  result, err = y.SetRGB(
-    0xfffff,
-    &yeelight.Effect{Effect: "smooth", Duration: 1500},
-  )
-  log.Println(result, err)
-  result, err = y.SetBright(3, &yeelight.Effect{Effect: "smooth", Duration: 1500})
-  log.Println(result, err)
-
-  result, err = y.GetProp("bright")
-  if err != nil {
-    log.Fatal(err)
-  }
-  log.Println("bright:", result.Result[0])
-  time.Sleep(3 * time.Second)
-  result, err = y.Toggle()
-  log.Println(result, err)
-}
+```shell
+go install github.com/lsongdev/yeelight-go/cmd/yeelight@latest
 ```
+
+### Commands
+
+- `status` - Get current light status
+- `power` - Control power state: on, off, toggle
+- `brightness <n>` - Set brightness (1-100)
+- `color <rrggbb>` - Set color (e.g., ff0000 for red)
+- `temp <n>` - Set color temperature (1700-6500K)
+- `discover` - Discover Yeelight devices on the network
+- `help` - Show this help message
+
+### Options
+
+- `--host=value` - Specify host IP address (default: discover first device)
+- `--port=value` - Specify port (default: 55443)
+
+### Examples
+
+```bash
+# Get status of light at specific address
+yeelight status --host=192.168.2.182 --port=55443
+
+# Turn light on
+yeelight power on --host=192.168.2.182 --port=55443
+
+# Set brightness to 50%
+yeelight brightness 50 --host=192.168.2.182 --port=55443
+
+# Set color to red
+yeelight color ff0000 --host=192.168.2.182 --port=55443
+
+# Discover devices on network
+yeelight discover
+
+# Use first discovered device automatically (if only one device on network)
+yeelight power on
+```
+
+## Library Usage
+
+See the example in [example/main.go](example/main.go) for how to use the library programmatically.
 
 ## Node.js Implementation
 

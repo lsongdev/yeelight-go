@@ -192,3 +192,13 @@ func (y *Yeelight) SetCT(temperature int, effect *Effect) (*CommandResult, error
 func (y *Yeelight) SetBright(brightness int, effect *Effect) (*CommandResult, error) {
 	return y.executeCommand("set_bright", brightness, effect.Effect, effect.Duration)
 }
+
+// GetHost returns the host address of the Yeelight device
+func (y *Yeelight) GetHost() string {
+	return y.config.Host
+}
+
+// GetPort returns the port of the Yeelight device
+func (y *Yeelight) GetPort() int {
+	return y.config.Port
+}

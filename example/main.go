@@ -12,9 +12,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// or ...
 	// y := yeelight.New(&yeelight.Config{
-	// 	IP:   "192.168.2.182",
-	// 	Port: 55443,
+	//   IP:   "192.168.2.182",
+	//   Port: 55443,
 	// })
 
 	result, err := y.GetProp("name")
