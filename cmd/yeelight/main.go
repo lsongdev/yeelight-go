@@ -1,13 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/lsongdev/yeelight-go/internal/cli"
 	"github.com/lsongdev/yeelight-go/yeelight"
 )
 
@@ -44,44 +44,36 @@ func main() {
 		return
 	}
 
-	args, flags := cli.ParseArgs()
-
-	if len(args) < 1 {
-		printUsage()
-		return
-	}
-
-	command := args[0]
+	command := os.Args[1]
 
 	// Handle commands that don't require a device connection
 	if command == "discover" || command == "help" || command == "-h" || command == "--help" {
 		switch command {
 		case "discover":
 			discoverDevices()
-		case "help":
-			fallthrough
-		case "-h":
-			fallthrough
-		case "--help":
+		case "help", "-h", "--help":
 			printUsage()
 		}
 		return
 	}
 
-	// Extract additional arguments for commands that need them
-	var remainingArgs []string
-	if len(args) > 1 {
-		remainingArgs = args[1:]
-	}
+	// Set up flags for remaining commands
+	fs := flag.NewFlagSet("yeelight", flag.ExitOnError)
+	host := fs.String("host", "", "Host IP address (default: discover first device)")
+	port := fs.Int("port", 0, "Port number (default: 55443)")
+
+	// Parse flags from os.Args[2:] onwards
+	fs.Parse(os.Args[2:])
+
+	// Get remaining positional arguments (command args)
+	remainingArgs := fs.Args()
 
 	// Get host and port from flags, or discover automatically
-	var host string
-	var port int
+	var hostAddr string
+	var portAddr int
 
-	// Check if host was provided as --host=value
-	hostFlagValue, hostExists := flags["host"]
-	if hostExists && hostFlagValue != true {
-		host = hostFlagValue.(string)
+	if *host != "" {
+		hostAddr = *host
 	} else {
 		// Discover the first available device
 		lights, err := yeelight.Discover()
@@ -92,38 +84,20 @@ func main() {
 			log.Fatal("No Yeelight devices found on the network and no host specified")
 		}
 		// Use the first discovered device
-		host = lights[0].GetHost()
-		port = lights[0].GetPort()
-		fmt.Printf("Using discovered device: %s:%d\n", host, port)
+		hostAddr = lights[0].GetHost()
+		portAddr = lights[0].GetPort()
+		fmt.Printf("Using discovered device: %s:%d\n", hostAddr, portAddr)
 	}
 
-	// Get port from flags, default to 55443 if not specified
-	portFlagValue, portExists := flags["port"]
-	if portExists && portFlagValue != true {
-		// Convert string value to int
-		var portVal int
-		switch v := portFlagValue.(type) {
-		case string:
-			p, err := strconv.Atoi(v)
-			if err != nil {
-				log.Fatal("Invalid port number:", err)
-			}
-			portVal = p
-		case int:
-			portVal = v
-		default:
-			log.Fatal("Port flag must be a number")
-		}
-		port = portVal
-	} else {
-		if port == 0 { // Only set default if port wasn't set from discovery
-			port = 55443
-		}
+	if *port != 0 {
+		portAddr = *port
+	} else if portAddr == 0 {
+		portAddr = 55443
 	}
 
 	switch command {
 	case "status":
-		getStatus(host, port)
+		getStatus(hostAddr, portAddr)
 	case "power":
 		if len(remainingArgs) < 1 {
 			fmt.Println("Error: power command requires an action (on, off, toggle)")
@@ -132,11 +106,11 @@ func main() {
 		powerAction := remainingArgs[0]
 		switch powerAction {
 		case "on":
-			setPower(host, port, "on")
+			setPower(hostAddr, portAddr, "on")
 		case "off":
-			setPower(host, port, "off")
+			setPower(hostAddr, portAddr, "off")
 		case "toggle":
-			toggleLight(host, port)
+			toggleLight(hostAddr, portAddr)
 		default:
 			fmt.Printf("Error: unknown power action '%s'. Use 'on', 'off', or 'toggle'\n", powerAction)
 			return
@@ -151,7 +125,7 @@ func main() {
 			fmt.Println("Error: brightness must be a number between 1 and 100")
 			return
 		}
-		setBrightness(host, port, brightness)
+		setBrightness(hostAddr, portAddr, brightness)
 	case "color":
 		if len(remainingArgs) < 1 {
 			fmt.Println("Error: color command requires a hex color value (e.g., ff0000)")
@@ -163,7 +137,7 @@ func main() {
 			fmt.Printf("Error: invalid hex color: %s\n", remainingArgs[0])
 			return
 		}
-		setRGB(host, port, int(colorInt))
+		setRGB(hostAddr, portAddr, int(colorInt))
 	case "temp":
 		if len(remainingArgs) < 1 {
 			fmt.Println("Error: temp command requires a temperature value (1700-6500)")
@@ -174,7 +148,7 @@ func main() {
 			fmt.Printf("Error: temperature must be a number between 1700 and 6500, got %d\n", temp)
 			return
 		}
-		setTemperature(host, port, temp)
+		setTemperature(hostAddr, portAddr, temp)
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 		fmt.Println("")
@@ -231,7 +205,7 @@ func setPower(host string, port int, state string) {
 		Effect:   "smooth",
 		Duration: 500,
 	}
-	
+
 	result, err := y.SetPower(state, effect, yeelight.Normal)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Failed to set power to %s:", state), err)
@@ -264,7 +238,7 @@ func setBrightness(host string, port int, brightness int) {
 		Effect:   "smooth",
 		Duration: 500,
 	}
-	
+
 	result, err := y.SetBright(brightness, effect)
 	if err != nil {
 		log.Fatal("Failed to set brightness:", err)
@@ -283,7 +257,7 @@ func setRGB(host string, port int, color int) {
 		Effect:   "smooth",
 		Duration: 500,
 	}
-	
+
 	result, err := y.SetRGB(color, effect)
 	if err != nil {
 		log.Fatal("Failed to set RGB color:", err)
@@ -302,7 +276,7 @@ func setTemperature(host string, port int, temp int) {
 		Effect:   "smooth",
 		Duration: 500,
 	}
-	
+
 	result, err := y.SetCT(temp, effect)
 	if err != nil {
 		log.Fatal("Failed to set color temperature:", err)
@@ -313,7 +287,7 @@ func setTemperature(host string, port int, temp int) {
 
 func discoverDevices() {
 	fmt.Println("Discovering Yeelight devices on the network...")
-	
+
 	lights, err := yeelight.Discover()
 	if err != nil {
 		log.Fatal("Failed to discover devices:", err)
@@ -332,13 +306,13 @@ func discoverDevices() {
 			fmt.Printf("%d. %s:%d - Error getting status: %v\n", i+1, light.GetHost(), light.GetPort(), err)
 			continue
 		}
-		
+
 		brightResult, err := light.GetProp("bright")
 		if err != nil {
 			fmt.Printf("%d. %s:%d - Power: %s, Error getting brightness: %v\n", i+1, light.GetHost(), light.GetPort(), powerResult.Result[0], err)
 			continue
 		}
-		
+
 		fmt.Printf("%d. %s:%d - Power: %s, Brightness: %s%%\n", i+1, light.GetHost(), light.GetPort(), powerResult.Result[0], brightResult.Result[0])
 	}
 }

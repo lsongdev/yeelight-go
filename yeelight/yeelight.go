@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"net"
 	"net/url"
@@ -83,20 +82,20 @@ func Discover() (lights []*Yeelight, err error) {
 	if err != nil {
 		return
 	}
-	
+
 	// Deduplicate devices by Location URL
 	seen := make(map[string]bool)
 	for _, response := range responses {
 		if response.Location == "" {
 			continue
 		}
-		
+
 		// Skip if we've already seen this device
 		if seen[response.Location] {
 			continue
 		}
 		seen[response.Location] = true
-		
+
 		u, err := url.Parse(response.Location)
 		if err != nil {
 			continue
@@ -152,7 +151,6 @@ func (y *Yeelight) execute(cmd *Command) (out *CommandResult, err error) {
 	defer conn.Close()
 	conn.SetReadDeadline(time.Now().Add(y.config.Timeout))
 	b, _ := json.Marshal(cmd)
-	log.Println(cmd.ID, string(b))
 	fmt.Fprint(conn, string(b)+"\r\n")
 	// wait and read for response
 	res, err := bufio.NewReader(conn).ReadString('\n')
