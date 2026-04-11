@@ -83,7 +83,20 @@ func Discover() (lights []*Yeelight, err error) {
 	if err != nil {
 		return
 	}
+	
+	// Deduplicate devices by Location URL
+	seen := make(map[string]bool)
 	for _, response := range responses {
+		if response.Location == "" {
+			continue
+		}
+		
+		// Skip if we've already seen this device
+		if seen[response.Location] {
+			continue
+		}
+		seen[response.Location] = true
+		
 		u, err := url.Parse(response.Location)
 		if err != nil {
 			continue
