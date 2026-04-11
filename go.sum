@@ -1,2 +1,4 @@
 github.com/lsongdev/ssdp-go v0.0.0-20250507123147-bdfa10d21c6e h1:dXiM1lc77E9N/+B4R32hb8EA2A6n0lUCtfSOB0d8+Ug=
 github.com/lsongdev/ssdp-go v0.0.0-20250507123147-bdfa10d21c6e/go.mod h1:fFWoxWjuae01yKqY1bVJBlwMsPBqEhOdYUkQl2OP5YA=
+github.com/lsongdev/ssdp-go v0.0.0-20260411070512-aece6ff5803f h1:ZlN+373rFabQWyOeMwA7A/dwfYhUwHzqEEuKlrdmCuM=
+github.com/lsongdev/ssdp-go v0.0.0-20260411070512-aece6ff5803f/go.mod h1:fFWoxWjuae01yKqY1bVJBlwMsPBqEhOdYUkQl2OP5YA=
