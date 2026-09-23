@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 
@@ -39,6 +41,8 @@ func printUsage() {
 }
 
 func main() {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
 	if len(os.Args) < 2 {
 		printUsage()
 		return
@@ -50,7 +54,7 @@ func main() {
 	if command == "discover" || command == "help" || command == "-h" || command == "--help" {
 		switch command {
 		case "discover":
-			discoverDevices()
+			discoverDevices(ctx)
 		case "help", "-h", "--help":
 			printUsage()
 		}
@@ -76,7 +80,7 @@ func main() {
 		hostAddr = *host
 	} else {
 		// Discover the first available device
-		lights, err := yeelight.Discover()
+		lights, err := yeelight.Discover(ctx)
 		if err != nil {
 			log.Fatal("Failed to discover devices:", err)
 		}
@@ -285,10 +289,10 @@ func setTemperature(host string, port int, temp int) {
 	fmt.Printf("Color temperature set to %dK, response: %v\n", temp, result.Result[0])
 }
 
-func discoverDevices() {
+func discoverDevices(ctx context.Context) {
 	fmt.Println("Discovering Yeelight devices on the network...")
 
-	lights, err := yeelight.Discover()
+	lights, err := yeelight.Discover(ctx)
 	if err != nil {
 		log.Fatal("Failed to discover devices:", err)
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"time"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func main() {
-	y, err := yeelight.Find()
+	y, err := yeelight.Find(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}

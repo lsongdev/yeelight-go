@@ -2,6 +2,7 @@ package yeelight
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -74,11 +75,11 @@ const (
 )
 
 // discover all devices
-func Discover() (lights []*Yeelight, err error) {
-	discovery := ssdp.NewClient(&ssdp.Config{
+func Discover(ctx context.Context) (lights []*Yeelight, err error) {
+	discovery := ssdp.NewClient(ssdp.Config{
 		Port: 1982,
 	})
-	responses, err := discovery.Search("wifi_bulb")
+	responses, err := discovery.Search(ctx, "wifi_bulb")
 	if err != nil {
 		return
 	}
@@ -86,17 +87,17 @@ func Discover() (lights []*Yeelight, err error) {
 	// Deduplicate devices by Location URL
 	seen := make(map[string]bool)
 	for _, response := range responses {
-		if response.Location == "" {
+		if response.Header.Get("Location") == "" {
 			continue
 		}
 
 		// Skip if we've already seen this device
-		if seen[response.Location] {
+		if seen[response.Header.Get("Location")] {
 			continue
 		}
-		seen[response.Location] = true
+		seen[response.Header.Get("Location")] = true
 
-		u, err := url.Parse(response.Location)
+		u, err := url.Parse(response.Header.Get("Location"))
 		if err != nil {
 			continue
 		}
@@ -111,10 +112,13 @@ func Discover() (lights []*Yeelight, err error) {
 }
 
 // find one device
-func Find() (*Yeelight, error) {
-	lights, err := Discover()
+func Find(ctx context.Context) (*Yeelight, error) {
+	lights, err := Discover(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if len(lights) == 0 {
+		return nil, fmt.Errorf("yeelight: no devices found")
 	}
 	return lights[0], nil
 }
