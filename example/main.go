@@ -15,7 +15,7 @@ func main() {
 	}
 	// or ...
 	// y := yeelight.New(&yeelight.Config{
-	//   IP:   "192.168.2.182",
+	//   Host: "192.168.2.182",
 	//   Port: 55443,
 	// })
 
@@ -62,7 +62,7 @@ func main() {
 	time.Sleep(2 * time.Second)
 
 	result, err = y.SetRGB(
-		0xfffff,
+		0xffffff,
 		&yeelight.Effect{Effect: "smooth", Duration: 1500},
 	)
 	log.Println(result, err)

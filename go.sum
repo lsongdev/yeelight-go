@@ -1,2 +1,6 @@
-github.com/lsongdev/ssdp-go v0.0.0-20260923095622-84485c3dd1fb h1:uW+q8XEbgpYGo7to8ogQtZODRvFseopw+5vG/h7bkfA=
-github.com/lsongdev/ssdp-go v0.0.0-20260923095622-84485c3dd1fb/go.mod h1:fFWoxWjuae01yKqY1bVJBlwMsPBqEhOdYUkQl2OP5YA=
+github.com/lsongdev/ssdp-go v0.0.0-20261105042636-7872ecd9da4d h1:+aS9irJO66jK7IoOyq8z26oBvWTwtTkQvjvOGKeuJcc=
+github.com/lsongdev/ssdp-go v0.0.0-20261105042636-7872ecd9da4d/go.mod h1:lBY9FZasD1qpQ+1qaZAW1HgpO54wjSMDo8z+wdNTkVI=
+golang.org/x/net v0.62.0 h1:18ELalfM5+XNRwzM2nYqXsZQ9ByS1uhj2O/U7+5jqRY=
+golang.org/x/net v0.62.0/go.mod h1:WgDCOTH8iwtB66T4/GfI94AHo/hhdb7Hah9NDseQfiI=
+golang.org/x/sys v0.49.0 h1:XbzkgYJHdqh/8m2Uu0W/dQv8nktxx4BFHp1M0gROTXA=
+golang.org/x/sys v0.49.0/go.mod h1:hNLxWAXmnKAxqDtdwIYC4bM9oQPEecfsnNMuSxOs3og=
