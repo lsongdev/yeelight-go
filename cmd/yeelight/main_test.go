@@ -147,3 +147,46 @@ func TestParseColor(t *testing.T) {
 		}
 	}
 }
+
+func TestChangesRequireLightOn(t *testing.T) {
+	for name, tc := range map[string]struct {
+		args   []string
+		method string
+	}{
+		"brightness": {[]string{"brightness", "50"}, "set_bright"},
+		"color":      {[]string{"color", "ff0000"}, "set_rgb"},
+		"temp":       {[]string{"temp", "3000"}, "set_ct_abx"},
+	} {
+		t.Run(name, func(t *testing.T) {
+			port, commands := fakeBulb(t, `["on"]`)
+			args := append(tc.args, "--host=127.0.0.1", "--port="+port)
+			var stdout, stderr bytes.Buffer
+			if code := run(args, &stdout, &stderr); code != exitOK {
+				t.Fatalf("on: code=%d stderr=%s", code, stderr.String())
+			}
+			if cmd := <-commands; cmd.Method != "get_prop" {
+				t.Fatalf("first command = %+v", cmd)
+			}
+			if cmd := <-commands; cmd.Method != tc.method {
+				t.Fatalf("second command = %+v", cmd)
+			}
+
+			port, commands = fakeBulb(t, `["off"]`)
+			args = append(tc.args, "--host=127.0.0.1", "--port="+port)
+			stdout.Reset()
+			stderr.Reset()
+			if code := run(args, &stdout, &stderr); code != exitError {
+				t.Fatalf("off: code=%d stdout=%s", code, stdout.String())
+			}
+			if !strings.Contains(stderr.String(), "power on") || stdout.Len() != 0 {
+				t.Fatalf("stdout=%q stderr=%q", stdout.String(), stderr.String())
+			}
+			if cmd := <-commands; cmd.Method != "get_prop" {
+				t.Fatalf("command = %+v", cmd)
+			}
+			if len(commands) != 0 {
+				t.Fatalf("change was sent while off: %+v", <-commands)
+			}
+		})
+	}
+}

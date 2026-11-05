@@ -31,6 +31,8 @@ go install github.com/lsongdev/yeelight-go/cmd/yeelight@latest
 - `--host=value` - Specify host IP address (default: discover first device)
 - `--port=value` - Specify port (default: 55443)
 
+`brightness`, `color` and `temp` require the light to be on and fail otherwise.
+
 Options can appear before or after the command and its arguments. The exit code
 is 0 on success, 1 if the command fails and 2 for invalid usage.
 
@@ -72,6 +74,9 @@ lights, err := yeelight.Discover(ctx)
 // A nil effect applies a change at once.
 _, err = lights[0].SetBright(50, nil)
 _, err = lights[0].SetRGB(0xff0000, &yeelight.Effect{Effect: yeelight.EffectSmooth, Duration: 500})
+
+// The light must be on: when off, a device may reply "ok" without applying a change.
+_, err = lights[0].SetPower("on", nil, yeelight.Normal)
 
 // Read several properties with one command.
 props, err := lights[0].GetProps("power", "bright", "ct")

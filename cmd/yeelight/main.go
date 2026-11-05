@@ -147,13 +147,13 @@ func parseCommand(command string, args []string) (action, error) {
 		if err != nil || brightness < 1 || brightness > 100 {
 			return nil, errors.New("brightness must be a number between 1 and 100")
 		}
-		return func(y *yeelight.Yeelight, out io.Writer) error {
+		return whenOn(func(y *yeelight.Yeelight, out io.Writer) error {
 			if _, err := y.SetBright(brightness, smooth); err != nil {
 				return fmt.Errorf("failed to set brightness: %w", err)
 			}
 			fmt.Fprintf(out, "Brightness set to %d%%\n", brightness)
 			return nil
-		}, nil
+		}), nil
 	case "color":
 		if len(args) != 1 {
 			return nil, errors.New("color command requires one hex color value (e.g., ff0000)")
@@ -162,13 +162,13 @@ func parseCommand(command string, args []string) (action, error) {
 		if err != nil {
 			return nil, err
 		}
-		return func(y *yeelight.Yeelight, out io.Writer) error {
+		return whenOn(func(y *yeelight.Yeelight, out io.Writer) error {
 			if _, err := y.SetRGB(color, smooth); err != nil {
 				return fmt.Errorf("failed to set RGB color: %w", err)
 			}
 			fmt.Fprintf(out, "RGB color set to #%06x\n", color)
 			return nil
-		}, nil
+		}), nil
 	case "temp":
 		if len(args) != 1 {
 			return nil, errors.New("temp command requires one temperature value (1700-6500)")
@@ -177,15 +177,30 @@ func parseCommand(command string, args []string) (action, error) {
 		if err != nil || temp < 1700 || temp > 6500 {
 			return nil, fmt.Errorf("temperature must be a number between 1700 and 6500, got %q", args[0])
 		}
-		return func(y *yeelight.Yeelight, out io.Writer) error {
+		return whenOn(func(y *yeelight.Yeelight, out io.Writer) error {
 			if _, err := y.SetCT(temp, smooth); err != nil {
 				return fmt.Errorf("failed to set color temperature: %w", err)
 			}
 			fmt.Fprintf(out, "Color temperature set to %dK\n", temp)
 			return nil
-		}, nil
+		}), nil
 	}
 	return nil, fmt.Errorf("unknown command: %s", command)
+}
+
+// whenOn fails if the light is off, because a device can accept a change while
+// off and report success without applying it.
+func whenOn(act action) action {
+	return func(y *yeelight.Yeelight, out io.Writer) error {
+		props, err := y.GetProps("power")
+		if err != nil {
+			return fmt.Errorf("failed to get power status: %w", err)
+		}
+		if props["power"] != "on" {
+			return errors.New("the light is off, run 'yeelight power on' first")
+		}
+		return act(y, out)
+	}
 }
 
 func parseColor(value string) (int, error) {

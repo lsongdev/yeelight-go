@@ -382,7 +382,10 @@ func (y *Yeelight) Toggle() (*CommandResult, error) {
 	return y.executeCommand("toggle")
 }
 
-// SetRGB sets the color as 0xRRGGBB. The device must be on.
+// SetRGB sets the color as 0xRRGGBB.
+//
+// The device must be on. A device that is off may reply "ok" without applying
+// the change, so a nil error does not prove it took effect.
 func (y *Yeelight) SetRGB(color int, effect *Effect) (*CommandResult, error) {
 	if err := checkRange("color", color, 0, 0xffffff); err != nil {
 		return nil, err
@@ -390,7 +393,10 @@ func (y *Yeelight) SetRGB(color int, effect *Effect) (*CommandResult, error) {
 	return y.setWithEffect("set_rgb", effect, color)
 }
 
-// SetHSV sets hue (0-359) and saturation (0-100). The device must be on.
+// SetHSV sets hue (0-359) and saturation (0-100).
+//
+// The device must be on. A device that is off may reply "ok" without applying
+// the change, so a nil error does not prove it took effect.
 func (y *Yeelight) SetHSV(hue int, saturation int, effect *Effect) (*CommandResult, error) {
 	if err := checkRange("hue", hue, 0, 359); err != nil {
 		return nil, err
@@ -401,7 +407,10 @@ func (y *Yeelight) SetHSV(hue int, saturation int, effect *Effect) (*CommandResu
 	return y.setWithEffect("set_hsv", effect, hue, saturation)
 }
 
-// SetCT sets the color temperature (1700-6500K). The device must be on.
+// SetCT sets the color temperature (1700-6500K).
+//
+// The device must be on. A device that is off may reply "ok" without applying
+// the change, so a nil error does not prove it took effect.
 func (y *Yeelight) SetCT(temperature int, effect *Effect) (*CommandResult, error) {
 	if err := checkRange("color temperature", temperature, 1700, 6500); err != nil {
 		return nil, err
@@ -409,7 +418,10 @@ func (y *Yeelight) SetCT(temperature int, effect *Effect) (*CommandResult, error
 	return y.setWithEffect("set_ct_abx", effect, temperature)
 }
 
-// SetBright sets the brightness (1-100). The device must be on.
+// SetBright sets the brightness (1-100).
+//
+// The device must be on. A device that is off may reply "ok" without applying
+// the change, so a nil error does not prove it took effect.
 func (y *Yeelight) SetBright(brightness int, effect *Effect) (*CommandResult, error) {
 	if err := checkRange("brightness", brightness, 1, 100); err != nil {
 		return nil, err
